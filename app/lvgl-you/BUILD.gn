@@ -1,0 +1,15 @@
+static_library("lvgl_demo")
+{
+    sources = [
+        "test.c",
+    ]
+
+    include_dirs = [
+        ".",
+
+    ]
+
+    deps = [
+        "//third_party/lvgl-9.2.2:lvgl",
+    ]
+}
