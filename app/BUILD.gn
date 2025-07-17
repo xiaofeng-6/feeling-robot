@@ -15,8 +15,11 @@ import("//build/lite/config/component/lite_component.gni")
 
 lite_component("app") {
   features = [ 
-    #"lvzuo:lvgl_demo",
-    "lvgl-zuo:lvgl_demo",
+
+    #"lvgl-zuo:lvgl_demo",
     #"lvgl-you:lvgl_demo",
+
+    #"emo-you:emo-you",  #右眼
+    "emo-zuo:emo-zuo",   #左眼
    ]
 }
