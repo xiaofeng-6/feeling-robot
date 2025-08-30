@@ -70,6 +70,7 @@ int TcpServerInit(unsigned short port)
 }
 
 /* 主循环：非阻塞 accept/recv 处理 */
+//初始化检查服务器连接。周期性接收新连接。处理已连接客户端的数据，recv函数接收数据。
 void TcpServerLoop(void)
 {
     if (!g_server_initialized) {
@@ -91,19 +92,68 @@ void TcpServerLoop(void)
     }
 
     if (g_client_fd >= 0) {
-        char buf[128] = {0};
-        int  ret      = recv(g_client_fd, buf, sizeof(buf) - 1, MSG_DONTWAIT);
+        static char receive_buffer[2048] = {0};  // 增加缓冲区大小
+        static int  buffer_pos = 0;
+        char        temp_buf[512] = {0};
+        
+        int ret = recv(g_client_fd, temp_buf, sizeof(temp_buf) - 1, MSG_DONTWAIT);
         if (ret > 0) {
-            ProcessReceivedData(buf, ret);
-            const char *ack = "ACK";
-            send(g_client_fd, ack, strlen(ack), 0);
-            osal_printk("TcpServerLoop handled data OK\r\n");
+            osal_printk("TCP recv: %d bytes\r\n", ret);
+            
+            // 检查缓冲区是否有足够空间
+            if (buffer_pos + ret >= sizeof(receive_buffer) - 1) {
+                osal_printk("警告：接收缓冲区将溢出，清空缓冲区\r\n");
+                buffer_pos = 0;
+                memset(receive_buffer, 0, sizeof(receive_buffer));
+            }
+            
+            // 将新数据追加到缓冲区
+            memcpy(receive_buffer + buffer_pos, temp_buf, ret);
+            buffer_pos += ret;
+            receive_buffer[buffer_pos] = '\0';
+            
+            // 检查是否收到完整的JSON数据（简单检查：以}结尾）
+            if (receive_buffer[0] == '{' && receive_buffer[buffer_pos - 1] == '}') {
+                osal_printk("接收到完整JSON数据，长度: %d\r\n", buffer_pos);
+                ProcessReceivedData(receive_buffer, buffer_pos);
+                
+                // 清空缓冲区，准备下次接收
+                buffer_pos = 0;
+                memset(receive_buffer, 0, sizeof(receive_buffer));
+                
+                const char *ack = "ACK";
+                send(g_client_fd, ack, strlen(ack), 0);
+                osal_printk("TcpServerLoop handled data OK\r\n");
+            } else {
+                // 如果不是以}结尾且缓冲区中有{开头，说明可能是分包数据，等待更多数据
+                if (receive_buffer[0] == '{') {
+                    osal_printk("等待更多数据... 当前缓冲区长度: %d\r\n", buffer_pos);
+                } else {
+                    // 如果不是JSON格式，直接处理
+                    osal_printk("接收到非JSON数据: %s\r\n", receive_buffer);
+                    ProcessReceivedData(receive_buffer, buffer_pos);
+                    
+                    // 清空缓冲区
+                    buffer_pos = 0;
+                    memset(receive_buffer, 0, sizeof(receive_buffer));
+                    
+                    const char *ack = "ACK";
+                    send(g_client_fd, ack, strlen(ack), 0);
+                    osal_printk("TcpServerLoop handled data OK\r\n");
+                }
+            }
         } else if (ret == 0) {
-            // 断开
+            // 断开连接，清空缓冲区
+            osal_printk("客户端断开连接\r\n");
+            buffer_pos = 0;
+            memset(receive_buffer, 0, sizeof(receive_buffer));
             closesocket(g_client_fd);
             g_client_fd = -1;
         } else if (ret < 0) {
             if (errno != EAGAIN && errno != EWOULDBLOCK) {
+                osal_printk("recv错误，断开连接\r\n");
+                buffer_pos = 0;
+                memset(receive_buffer, 0, sizeof(receive_buffer));
                 closesocket(g_client_fd);
                 g_client_fd = -1;
             }

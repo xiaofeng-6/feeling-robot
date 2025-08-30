@@ -12,6 +12,7 @@ void neutral(void);
 void sad(void);
 void surprised(void);
 void wenshidu(void);
+void xiaohui(void);
 
 #ifdef __cplusplus
 }

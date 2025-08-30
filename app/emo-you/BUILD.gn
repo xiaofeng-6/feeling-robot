@@ -23,14 +23,15 @@ static_library("emo-you") {
     
     # 情绪表达模块
     "emotions/cry.c",
-    "emotions/fear.c",
+    "emotions/shy.c",
     "emotions/happy.c",
     "emotions/neutral.c",
-    "emotions/sad.c",
+    "emotions/worry.c",
     "emotions/surprised.c",
     
     # 应用模块
     "apps/tianqi.c",
+    "apps/fengjing.c",
   ]
 
   include_dirs = [
@@ -59,6 +60,8 @@ static_library("emo-you") {
     "//device/soc/hisilicon/ws63v100/sdkv102/middleware/utils/common_headers/native",
     "//device/soc/hisilicon/ws63v100/sdkv102/kernel/osal/include",
     "//device/soc/hisilicon/ws63v100/sdkv102/include/middleware/services/wifi",
+    "//third_party/cJSON",
+    "//device/soc/hisilicon/ws63v100/sdkv102/application/ws63/ws63_liteos_application",
 
   ]
 

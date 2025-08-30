@@ -119,7 +119,7 @@ static void atk_md0240_reg_init(void)
     for (volatile int i = 0; i < 12000000; ++i) ;
     /* Memory Data Access Control */
     atk_md0240_write_cmd(0x36);
-    atk_md0240_write_dat(0x60);
+    atk_md0240_write_dat(0xa0);//×óÑÛ¡£ÓÒÑÛÎª(60)
     /* RGB 5-6-5-bit  */
     atk_md0240_write_cmd(0x3A);
     atk_md0240_write_dat(0x65);

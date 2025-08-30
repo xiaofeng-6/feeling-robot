@@ -1,0 +1,24 @@
+import("//build/lite/config/component/lite_component.gni")
+import("lvgl.gni")
+
+# Public config for lvgl, making headers and cflags available to dependents.
+config("lvgl_public_config") {
+  include_dirs = LVGL_INCLUDE_DIRS
+  cflags = LVGL_CFLAGS
+}
+
+# The actual static library that compiles all the sources.
+lite_library("lvgl_static") {
+  target_type = "static_library"
+  sources = LVGL_SOURCES
+  public_configs = [ ":lvgl_public_config" ]
+  output_name = "lvgl"
+}
+
+# The main entry point for other components to depend on.
+# This group ensures that dependents correctly link against the static library.
+group("lvgl") {
+  public_deps = [
+    ":lvgl_static",
+  ]
+}

@@ -2,13 +2,20 @@
 #include "lvgl.h"
 //--------这里放函数
 
+
+void blue_rect_anim_cb(void * var, int32_t v)
+{
+    lv_obj_t * obj = (lv_obj_t *)var;
+    lv_obj_set_size(obj, 50, v); // 宽度50，高度v
+}
+
 void cry(void)
 {
 #if 1//初始化lv_init  lv_port_disp_init 清屏lv_obj_clean
         lv_init();
-    osal_printk("Happy lv_init done\r\n");
+    osal_printk("cry lv_init done\r\n");
     lv_port_disp_init();
-    osal_printk("Happy lv_port_disp_init done\r\n");
+    osal_printk("cry lv_port_disp_init done\r\n");
 
     lv_obj_clean(lv_scr_act());  //清除屏幕
 
@@ -74,6 +81,19 @@ void cry(void)
         lv_obj_set_style_bg_opa(blue_rect, LV_OPA_COVER, LV_PART_MAIN);  // 不透明
         lv_obj_set_style_border_width(blue_rect, 0, LV_PART_MAIN);  // 无边框
         lv_obj_remove_flag(blue_rect, LV_OBJ_FLAG_CLICKABLE); // 不可点击
+
+        #if 1
+             // 创建动画
+             lv_anim_t a;
+             lv_anim_init(&a);
+             lv_anim_set_var(&a, blue_rect);
+             lv_anim_set_exec_cb(&a, blue_rect_anim_cb);
+             lv_anim_set_time(&a, 2000); // 动画时长800ms
+             lv_anim_set_values(&a, 0, 100); // 高度从0到100
+             lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE); // 无限循环
+             lv_anim_start(&a);
+        #endif
+
     }
 
     /* ---------------- 画直线（160,115 到 250,115） ---------------- */

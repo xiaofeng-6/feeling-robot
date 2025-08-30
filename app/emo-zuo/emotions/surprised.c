@@ -5,9 +5,9 @@
 void surprised(void)
 {
     lv_init();
-    osal_printk("Happy lv_init done\r\n");
+    osal_printk("surprised lv_init done\r\n");
     lv_port_disp_init();
-    osal_printk("Happy lv_port_disp_init done\r\n");
+    osal_printk("surprised lv_port_disp_init done\r\n");
 
     lv_obj_clean(lv_scr_act());  //清除屏幕
     /* 创建用于椭圆弧线（宽度15）的样式 */
